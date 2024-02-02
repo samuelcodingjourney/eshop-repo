@@ -55,19 +55,21 @@ public class ProductController {
             @ModelAttribute Product updatedProduct,
             Model model
     ) {
-        // Retrieve the existing product from the service
+
         Product existingProduct = service.findByName(productName);
 
         if (existingProduct != null) {
-            // Update the existing product with the new values
             existingProduct.setProductName(updatedProduct.getProductName());
             existingProduct.setProductQuantity(updatedProduct.getProductQuantity());
 
-            // Redirect to the product list page after editing
             return "redirect:/product/list";
         } else {
-            // Handle product not found scenario (redirect or show an error)
             return "redirect:/product/list";
         }
+    }
+    @GetMapping("/delete/{productName}")
+    public String deleteProduct(@PathVariable String productName) {
+        service.deleteProductByName(productName);
+        return "redirect:/product/list";
     }
 }

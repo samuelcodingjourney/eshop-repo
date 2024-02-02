@@ -37,4 +37,15 @@ public class ProductServiceImpl implements ProductService{
         }
         return null;
     }
+    @Override
+    public void deleteProductByName(String productName) {
+        Iterator<Product> iterator = productRepository.findAll();
+        while (iterator.hasNext()) {
+            Product product = iterator.next();
+            if (product.getProductName().equals(productName)) {
+                iterator.remove();
+                break;
+            }
+        }
+    }
 }
