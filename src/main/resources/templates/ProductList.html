@@ -16,12 +16,17 @@
         <tr>
             <th scope="col">Product Name</th>
             <th scope="col">Quantity</th>
+            <th scope="col">Actions</th> <!-- Added a column for actions -->
         </tr>
         </thead>
         <tbody>
         <tr th:each="product: ${products}">
             <td th:text="${product.productName}"></td>
             <td th:text="${product.productQuantity}"></td>
+            <td>
+                <a th:href="@{'/product/edit/' + ${product.productName}}" class="btn btn-primary btn-sm">Edit</a>
+                <a th:href="@{'/product/delete/' + ${product.productName}}" class="btn btn-danger btn-sm ml-2">Delete</a>
+            </td>
         </tr>
         </tbody>
     </table>

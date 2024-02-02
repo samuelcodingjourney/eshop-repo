@@ -14,7 +14,18 @@ public class ProductRepository {
         productData.add(product);
         return product;
     }
+
+
     public Iterator<Product> findAll() {
         return productData.iterator();
+    }
+
+    public Product findByName(String productName) {
+        for (Product product : productData) {
+            if (product.getProductName().equals(productName)) {
+                return product;
+            }
+        }
+        return null;
     }
 }

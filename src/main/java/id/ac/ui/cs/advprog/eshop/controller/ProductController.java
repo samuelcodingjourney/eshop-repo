@@ -35,4 +35,39 @@ public class ProductController {
         model.addAttribute("products", allProducts);
         return "productList";
     }
+
+    @GetMapping("/edit/{productName}")
+    public String editProductPage(@PathVariable String productName, Model model) {
+        Product existingProduct = service.findByName(productName);
+
+        if (existingProduct != null) {
+            model.addAttribute("product", existingProduct);
+            return "editProduct";
+        } else {
+            // Handle product not found scenario (redirect or show an error)
+            return "redirect:/product/list";
+        }
+    }
+
+    @PostMapping("/edit/{productName}")
+    public String editProductPost(
+            @PathVariable String productName,
+            @ModelAttribute Product updatedProduct,
+            Model model
+    ) {
+        // Retrieve the existing product from the service
+        Product existingProduct = service.findByName(productName);
+
+        if (existingProduct != null) {
+            // Update the existing product with the new values
+            existingProduct.setProductName(updatedProduct.getProductName());
+            existingProduct.setProductQuantity(updatedProduct.getProductQuantity());
+
+            // Redirect to the product list page after editing
+            return "redirect:/product/list";
+        } else {
+            // Handle product not found scenario (redirect or show an error)
+            return "redirect:/product/list";
+        }
+    }
 }
