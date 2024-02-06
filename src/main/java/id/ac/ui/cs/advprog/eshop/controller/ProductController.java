@@ -44,7 +44,6 @@ public class ProductController {
             model.addAttribute("product", existingProduct);
             return "editProduct";
         } else {
-            // Handle product not found scenario (redirect or show an error)
             return "redirect:/product/list";
         }
     }
@@ -69,7 +68,7 @@ public class ProductController {
     }
     @GetMapping("/delete/{productName}")
     public String deleteProduct(@PathVariable String productName) {
-        service.deleteProductByName(productName);
+        service.deleteByName(productName);
         return "redirect:/product/list";
     }
 }
