@@ -12,23 +12,23 @@ import java.util.List;
 @Controller
 @RequestMapping("/product")
 public class ProductController {
-    
+
     @Autowired
     private ProductService service;
-    
+
     @GetMapping("/create")
     public String createProductPage(Model model) {
         Product product = new Product();
         model.addAttribute("product", product);
         return "createProduct";
     }
-    
+
     @PostMapping("/create")
     public String createProductPost(@ModelAttribute Product product, Model model) {
         service.create(product);
         return "redirect:list";
     }
-    
+
     @GetMapping("/list")
     public String productListPage(Model model) {
         List<Product> allProducts = service.findAll();
@@ -60,6 +60,8 @@ public class ProductController {
         if (existingProduct != null) {
             existingProduct.setProductName(updatedProduct.getProductName());
             existingProduct.setProductQuantity(updatedProduct.getProductQuantity());
+
+
 
             return "redirect:/product/list";
         } else {
