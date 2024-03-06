@@ -127,52 +127,39 @@ class PaymentServiceImplTest {
 
     @Test
     void testAddPaymentWithInvalidVoucherCode_Rejected() {
-        // Create test data with an invalid voucher code
         List<Product> products = new ArrayList<>();
-        products.add(new Product()); // Provide productId, productName, and productQuantity
+        products.add(new Product());
         Order order = new Order("1", products, 123456L, "John Doe");
         String method = "Cash on Delivery";
         Map<String, String> paymentData = new HashMap<>();
-        paymentData.put("voucherCode", "INVALID_VOUCHER_CODE"); // Invalid voucher code
-
-        // Call the service method
+        paymentData.put("voucherCode", "INVALID_VOUCHER_CODE");
         Payment rejectedPayment = paymentService.addPayment(order, method, paymentData);
-
-        // Verify that the payment is rejected
         assertEquals("REJECTED", rejectedPayment.getStatus());
         verify(paymentRepository, times(1)).save(any(Payment.class));
     }
     @Test
-    void testAddPaymentWithCashOnDelivery_Success() {
-        // Create test data
+    void testAddPaymentWithValidCashOnDelivery_Success() {
         Order order = new Order("1", new ArrayList<>(), 123456L, "John Doe");
         String method = "Cash on Delivery";
         Map<String, String> paymentData = new HashMap<>();
         paymentData.put("address", "123 Main St");
         paymentData.put("deliveryFee", "10.00");
-
-        // Call the service method
         Payment payment = paymentService.addPayment(order, method, paymentData);
-
-        // Verify that the payment is saved
         assertNotNull(payment);
         assertEquals("SUCCESS", payment.getStatus());
     }
+
     @Test
     void testAddPaymentWithMissingDeliveryFee_Rejected() {
-        // Create test data
         Order order = new Order("1", new ArrayList<>(), 123456L, "John Doe");
         String method = "Cash on Delivery";
         Map<String, String> paymentData = new HashMap<>();
-        paymentData.put("address", "123 Main St"); // Missing delivery fee
-
-        // Call the service method
+        paymentData.put("address", "123 Main St");
         Payment payment = paymentService.addPayment(order, method, paymentData);
-
-        // Verify that the payment is rejected
         assertNotNull(payment);
         assertEquals("REJECTED", payment.getStatus());
     }
+
     @Test
     void testAddPaymentWithEmptyAddress_Rejected() {
         // Create test data
@@ -181,14 +168,11 @@ class PaymentServiceImplTest {
         Map<String, String> paymentData = new HashMap<>();
         paymentData.put("address", ""); // Empty address
         paymentData.put("deliveryFee", "10.00");
-
-        // Call the service method
         Payment payment = paymentService.addPayment(order, method, paymentData);
-
-        // Verify that the payment is rejected
         assertNotNull(payment);
         assertEquals("REJECTED", payment.getStatus());
     }
+
     @Test
     void testAddPaymentWithEmptyDeliveryFee_Rejected() {
         // Create test data
@@ -196,15 +180,22 @@ class PaymentServiceImplTest {
         String method = "Cash on Delivery";
         Map<String, String> paymentData = new HashMap<>();
         paymentData.put("address", "123 Main St");
-        paymentData.put("deliveryFee", ""); // Empty delivery fee
-
-        // Call the service method
+        paymentData.put("deliveryFee", "");
         Payment payment = paymentService.addPayment(order, method, paymentData);
-
-        // Verify that the payment is rejected
         assertNotNull(payment);
         assertEquals("REJECTED", payment.getStatus());
     }
+
+    @Test
+    void testAddPaymentWithMissingAddressAndDeliveryFee_Rejected() {
+        Order order = new Order("1", new ArrayList<>(), 123456L, "John Doe");
+        String method = "Cash on Delivery";
+        Map<String, String> paymentData = new HashMap<>();
+        Payment payment = paymentService.addPayment(order, method, paymentData);
+        assertNotNull(payment);
+        assertEquals("REJECTED", payment.getStatus());
+    }
+
 }
 
 

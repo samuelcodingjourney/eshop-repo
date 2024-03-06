@@ -23,24 +23,60 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Payment addPayment(Order order, String method, Map<String, String> paymentData) {
-        if (isCashOnDeliveryValid(paymentData)) {
+        if (isCashOnDelivery(paymentData)) {
             return createCashOnDeliveryPayment(order, method, paymentData);
+        } else if (isValidVoucherCode(paymentData)) {
+            return createVoucherPayment(order, method, paymentData);
         } else {
             return createRejectedPayment(order, method, paymentData);
         }
     }
 
-    private boolean isCashOnDeliveryValid(Map<String, String> paymentData) {
-        return paymentData.containsKey("address") && paymentData.containsKey("deliveryFee")
-                && !paymentData.get("address").isEmpty() && !paymentData.get("deliveryFee").isEmpty();
+    private boolean isCashOnDelivery(Map<String, String> paymentData) {
+        return isPaymentDataValid(paymentData) && paymentData.containsKey("address")
+                && paymentData.containsKey("deliveryFee")
+                && !paymentData.get("address").isEmpty()
+                && !paymentData.get("deliveryFee").isEmpty();
+    }
+    private boolean isPaymentDataValid(Map<String, String> paymentData) {
+        return paymentData != null && !paymentData.isEmpty();
+    }
+
+
+    private boolean isValidVoucherCode(Map<String, String> paymentData) {
+        String voucherCode = paymentData.get("voucherCode");
+        return voucherCode != null && voucherCode.length() == 16 && voucherCode.startsWith("ESHOP")
+                && voucherCode.substring(5).matches("\\d{8}");
     }
 
     private Payment createCashOnDeliveryPayment(Order order, String method, Map<String, String> paymentData) {
-        return new Payment(UUID.randomUUID().toString(), method, "SUCCESS", paymentData);
+        if (paymentData.containsKey("address") && paymentData.containsKey("deliveryFee")
+                && !paymentData.get("address").isEmpty() && !paymentData.get("deliveryFee").isEmpty()) {
+            return createPayment(order, method, paymentData, SUCCESS_STATUS);
+        } else {
+            return createRejectedPayment(order, method, paymentData);
+        }
+    }
+
+    private Payment createVoucherPayment(Order order, String method, Map<String, String> paymentData) {
+        return createPayment(order, method, paymentData, SUCCESS_STATUS);
     }
 
     private Payment createRejectedPayment(Order order, String method, Map<String, String> paymentData) {
-        return new Payment(UUID.randomUUID().toString(), method, "REJECTED", paymentData);
+        return createPayment(order, method, paymentData, REJECTED_STATUS);
+    }
+
+    private Payment createPayment(Order order, String method, Map<String, String> paymentData, String status) {
+        Payment payment = new Payment(UUID.randomUUID().toString(), method, status, paymentData);
+        payment.setOrder(order);
+        paymentRepository.save(payment);
+        updateOrderStatus(order, status);
+        return payment;
+    }
+
+    private void updateOrderStatus(Order order, String status) {
+        order.setStatus(status.equals(SUCCESS_STATUS) ? SUCCESS_STATUS : "FAILED");
+        orderRepository.save(order);
     }
 
     private String determinePaymentStatus(String voucherCode) {
