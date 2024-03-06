@@ -23,19 +23,24 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Payment addPayment(Order order, String method, Map<String, String> paymentData) {
-
+        if (isCashOnDeliveryValid(paymentData)) {
+            return createCashOnDeliveryPayment(order, method, paymentData);
+        } else {
+            return createRejectedPayment(order, method, paymentData);
+        }
     }
 
     private boolean isCashOnDeliveryValid(Map<String, String> paymentData) {
-
+        return paymentData.containsKey("address") && paymentData.containsKey("deliveryFee")
+                && !paymentData.get("address").isEmpty() && !paymentData.get("deliveryFee").isEmpty();
     }
 
     private Payment createCashOnDeliveryPayment(Order order, String method, Map<String, String> paymentData) {
-
+        return new Payment(UUID.randomUUID().toString(), method, "SUCCESS", paymentData);
     }
 
     private Payment createRejectedPayment(Order order, String method, Map<String, String> paymentData) {
-
+        return new Payment(UUID.randomUUID().toString(), method, "REJECTED", paymentData);
     }
 
     private String determinePaymentStatus(String voucherCode) {
