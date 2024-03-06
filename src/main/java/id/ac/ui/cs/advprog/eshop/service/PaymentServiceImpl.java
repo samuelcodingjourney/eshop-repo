@@ -23,12 +23,13 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Payment addPayment(Order order, String method, Map<String, String> paymentData) {
-        String paymentId = UUID.randomUUID().toString();
-        Payment payment = new Payment(paymentId, method, WAITING_PAYMENT_STATUS, paymentData);
-        payment.setOrder(order);
-        paymentRepository.save(payment);
-        return payment;
+
     }
+
+    private boolean isValidVoucherCode(String voucherCode) {
+    }
+
+
 
     @Override
     public void setStatus(Payment payment, String status) {

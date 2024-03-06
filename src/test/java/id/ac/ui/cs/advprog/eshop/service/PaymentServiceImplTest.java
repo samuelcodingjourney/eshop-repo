@@ -107,7 +107,51 @@ class PaymentServiceImplTest {
         assertEquals(expectedPayments.size(), actualPayments.size());
         assertEquals(expectedPayments, actualPayments);
     }
+
+    @Test
+    void testAddPaymentWithValidVoucherCode_Success() {
+        // Create test data
+        List<Product> products = new ArrayList<>();
+        products.add(new Product()); // Provide productId, productName, and productQuantity
+        Order order = new Order("1", products, 123456L, "John Doe");
+        String method = "Cash on Delivery";
+        Map<String, String> paymentData = new HashMap<>();
+        paymentData.put("voucherCode", "ESHOP12345678"); // Correct voucher code
+
+        // Call the service method
+        paymentService.addPayment(order, method, paymentData);
+
+        // Verify that the payment is saved
+        verify(paymentRepository, times(1)).save(any(Payment.class));
+    }
+
+    @Test
+    void testAddPaymentWithInvalidVoucherCode_Rejected() {
+        // Create test data with an invalid voucher code
+        List<Product> products = new ArrayList<>();
+        products.add(new Product()); // Provide productId, productName, and productQuantity
+        Order order = new Order("1", products, 123456L, "John Doe");
+        String method = "Cash on Delivery";
+        Map<String, String> paymentData = new HashMap<>();
+        paymentData.put("voucherCode", "INVALID_VOUCHER_CODE"); // Invalid voucher code
+
+        // Call the service method
+        Payment rejectedPayment = paymentService.addPayment(order, method, paymentData);
+
+        // Verify that the payment is rejected
+        assertEquals("REJECTED", rejectedPayment.getStatus());
+        verify(paymentRepository, times(1)).save(any(Payment.class));
+    }
+
 }
+
+
+
+
+
+
+
+
 
 
 
