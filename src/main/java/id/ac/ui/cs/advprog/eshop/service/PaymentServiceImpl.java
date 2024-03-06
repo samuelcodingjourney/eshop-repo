@@ -24,11 +24,23 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public Payment addPayment(Order order, String method, Map<String, String> paymentData) {
         String voucherCode = paymentData.get("voucherCode");
-        String paymentStatus = isValidVoucherCode(voucherCode) ? "SUCCESS" : "REJECTED";
-        Payment payment = new Payment(UUID.randomUUID().toString(), method, paymentStatus, paymentData);
-        payment.setOrder(order);
-        paymentRepository.save(payment);
+        String paymentStatus = determinePaymentStatus(voucherCode);
+        Payment payment = createPayment(method, paymentStatus, paymentData, order);
+        savePayment(payment);
         return payment;
+    }
+
+    private String determinePaymentStatus(String voucherCode) {
+        return isValidVoucherCode(voucherCode) ? "SUCCESS" : "REJECTED";
+    }
+
+    private Payment createPayment(String method, String paymentStatus, Map<String, String> paymentData, Order order) {
+        String paymentId = UUID.randomUUID().toString();
+        return new Payment(paymentId, method, paymentStatus, paymentData);
+    }
+
+    private void savePayment(Payment payment) {
+        paymentRepository.save(payment);
     }
 
     private boolean isValidVoucherCode(String voucherCode) {
@@ -41,6 +53,7 @@ public class PaymentServiceImpl implements PaymentService {
         String numericalPart = voucherCode.substring(5);
         return numericalPart.matches("\\d{8}");
     }
+
 
 
 
