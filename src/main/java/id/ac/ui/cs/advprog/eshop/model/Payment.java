@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.eshop.model;
 
+
 import lombok.Builder;
 import lombok.Getter;
 
@@ -7,13 +8,13 @@ import java.util.Map;
 import java.util.HashSet;
 import java.util.Set;
 
-@Builder
 @Getter
 public class Payment {
     private String id;
     private String method;
     private String status;
     private Map<String, String> paymentData;
+    private Order order;
 
     private static final Set<String> VALID_STATUSES = new HashSet<>();
 
@@ -23,6 +24,7 @@ public class Payment {
         VALID_STATUSES.add("WAITING_PAYMENT");
     }
 
+    @Builder
     public Payment(String id, String method, String status, Map<String, String> paymentData) {
         this.id = id;
         this.method = method;
@@ -38,10 +40,19 @@ public class Payment {
         }
     }
 
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
+    }
+
     private boolean isValidStatus(String status) {
         return VALID_STATUSES.contains(status);
     }
 }
+
 
 
 
