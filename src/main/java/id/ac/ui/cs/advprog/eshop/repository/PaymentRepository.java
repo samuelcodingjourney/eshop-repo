@@ -9,15 +9,19 @@ public class PaymentRepository {
     private Map<String, Payment> paymentMap;
 
     public PaymentRepository() {
+        this.paymentMap = new HashMap<>();
     }
 
     public void save(Payment payment) {
+        paymentMap.put(payment.getId(), payment);
     }
 
     public Payment findById(String paymentId) {
+        return paymentMap.get(paymentId);
     }
 
     public List<Payment> findAll() {
+        return new ArrayList<>(paymentMap.values());
     }
 }
 
