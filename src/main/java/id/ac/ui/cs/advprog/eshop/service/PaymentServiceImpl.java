@@ -9,8 +9,12 @@ import java.util.Map;
 import java.util.UUID;
 
 public class PaymentServiceImpl implements PaymentService {
-    private PaymentRepository paymentRepository;
-    private OrderRepository orderRepository;
+    private final PaymentRepository paymentRepository;
+    private final OrderRepository orderRepository;
+
+    private static final String SUCCESS_STATUS = "SUCCESS";
+    private static final String REJECTED_STATUS = "REJECTED";
+    private static final String WAITING_PAYMENT_STATUS = "WAITING_PAYMENT";
 
     public PaymentServiceImpl(PaymentRepository paymentRepository, OrderRepository orderRepository) {
         this.paymentRepository = paymentRepository;
@@ -19,7 +23,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Payment addPayment(Order order, String method, Map<String, String> paymentData) {
-        Payment payment = new Payment(UUID.randomUUID().toString(), method, "WAITING_PAYMENT", paymentData);
+        String paymentId = UUID.randomUUID().toString();
+        Payment payment = new Payment(paymentId, method, WAITING_PAYMENT_STATUS, paymentData);
         payment.setOrder(order);
         paymentRepository.save(payment);
         return payment;
@@ -28,18 +33,22 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public void setStatus(Payment payment, String status) {
         payment.setStatus(status);
-        if (status.equals("SUCCESS")) {
-            Order order = orderRepository.findById(payment.getOrder().getId());
-            if (order != null) {
-                order.setStatus("SUCCESS");
-                orderRepository.save(order);
-            }
-        } else if (status.equals("REJECTED")) {
-            Order order = orderRepository.findById(payment.getOrder().getId());
-            if (order != null) {
-                order.setStatus("FAILED");
-                orderRepository.save(order);
-            }
+        updateOrderStatus(payment, status);
+    }
+
+    private void updateOrderStatus(Payment payment, String status) {
+        if (SUCCESS_STATUS.equals(status)) {
+            updateOrder(payment, SUCCESS_STATUS);
+        } else if (REJECTED_STATUS.equals(status)) {
+            updateOrder(payment, "FAILED");
+        }
+    }
+
+    private void updateOrder(Payment payment, String status) {
+        Order order = orderRepository.findById(payment.getOrder().getId());
+        if (order != null) {
+            order.setStatus(status);
+            orderRepository.save(order);
         }
     }
 
@@ -53,5 +62,6 @@ public class PaymentServiceImpl implements PaymentService {
         return paymentRepository.findAll();
     }
 }
+
 
 
