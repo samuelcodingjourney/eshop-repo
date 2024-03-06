@@ -23,10 +23,23 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Payment addPayment(Order order, String method, Map<String, String> paymentData) {
-
+        String voucherCode = paymentData.get("voucherCode");
+        String paymentStatus = isValidVoucherCode(voucherCode) ? "SUCCESS" : "REJECTED";
+        Payment payment = new Payment(UUID.randomUUID().toString(), method, paymentStatus, paymentData);
+        payment.setOrder(order);
+        paymentRepository.save(payment);
+        return payment;
     }
 
     private boolean isValidVoucherCode(String voucherCode) {
+        if (voucherCode == null || voucherCode.length() != 16) {
+            return false;
+        }
+        if (!voucherCode.startsWith("ESHOP")) {
+            return false;
+        }
+        String numericalPart = voucherCode.substring(5);
+        return numericalPart.matches("\\d{8}");
     }
 
 
