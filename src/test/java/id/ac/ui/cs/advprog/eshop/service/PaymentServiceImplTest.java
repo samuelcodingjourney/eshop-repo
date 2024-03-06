@@ -142,7 +142,69 @@ class PaymentServiceImplTest {
         assertEquals("REJECTED", rejectedPayment.getStatus());
         verify(paymentRepository, times(1)).save(any(Payment.class));
     }
+    @Test
+    void testAddPaymentWithCashOnDelivery_Success() {
+        // Create test data
+        Order order = new Order("1", new ArrayList<>(), 123456L, "John Doe");
+        String method = "Cash on Delivery";
+        Map<String, String> paymentData = new HashMap<>();
+        paymentData.put("address", "123 Main St");
+        paymentData.put("deliveryFee", "10.00");
 
+        // Call the service method
+        Payment payment = paymentService.addPayment(order, method, paymentData);
+
+        // Verify that the payment is saved
+        assertNotNull(payment);
+        assertEquals("SUCCESS", payment.getStatus());
+    }
+    @Test
+    void testAddPaymentWithMissingDeliveryFee_Rejected() {
+        // Create test data
+        Order order = new Order("1", new ArrayList<>(), 123456L, "John Doe");
+        String method = "Cash on Delivery";
+        Map<String, String> paymentData = new HashMap<>();
+        paymentData.put("address", "123 Main St"); // Missing delivery fee
+
+        // Call the service method
+        Payment payment = paymentService.addPayment(order, method, paymentData);
+
+        // Verify that the payment is rejected
+        assertNotNull(payment);
+        assertEquals("REJECTED", payment.getStatus());
+    }
+    @Test
+    void testAddPaymentWithEmptyAddress_Rejected() {
+        // Create test data
+        Order order = new Order("1", new ArrayList<>(), 123456L, "John Doe");
+        String method = "Cash on Delivery";
+        Map<String, String> paymentData = new HashMap<>();
+        paymentData.put("address", ""); // Empty address
+        paymentData.put("deliveryFee", "10.00");
+
+        // Call the service method
+        Payment payment = paymentService.addPayment(order, method, paymentData);
+
+        // Verify that the payment is rejected
+        assertNotNull(payment);
+        assertEquals("REJECTED", payment.getStatus());
+    }
+    @Test
+    void testAddPaymentWithEmptyDeliveryFee_Rejected() {
+        // Create test data
+        Order order = new Order("1", new ArrayList<>(), 123456L, "John Doe");
+        String method = "Cash on Delivery";
+        Map<String, String> paymentData = new HashMap<>();
+        paymentData.put("address", "123 Main St");
+        paymentData.put("deliveryFee", ""); // Empty delivery fee
+
+        // Call the service method
+        Payment payment = paymentService.addPayment(order, method, paymentData);
+
+        // Verify that the payment is rejected
+        assertNotNull(payment);
+        assertEquals("REJECTED", payment.getStatus());
+    }
 }
 
 

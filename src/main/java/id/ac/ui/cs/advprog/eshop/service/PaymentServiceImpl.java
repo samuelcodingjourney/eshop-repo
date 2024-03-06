@@ -23,11 +23,19 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Payment addPayment(Order order, String method, Map<String, String> paymentData) {
-        String voucherCode = paymentData.get("voucherCode");
-        String paymentStatus = determinePaymentStatus(voucherCode);
-        Payment payment = createPayment(method, paymentStatus, paymentData, order);
-        savePayment(payment);
-        return payment;
+
+    }
+
+    private boolean isCashOnDeliveryValid(Map<String, String> paymentData) {
+
+    }
+
+    private Payment createCashOnDeliveryPayment(Order order, String method, Map<String, String> paymentData) {
+
+    }
+
+    private Payment createRejectedPayment(Order order, String method, Map<String, String> paymentData) {
+
     }
 
     private String determinePaymentStatus(String voucherCode) {
